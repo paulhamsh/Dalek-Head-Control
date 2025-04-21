@@ -27,7 +27,7 @@ The circuit is as below.
   <img src="circuit.jpg" width="800" title="circuit diagram">
 </p>
 
-## Head circuit board
+## Exploring the full head circuit board
 
 The circuit board for controlling the whole head comes in issue 12. 
 This has twp connectors for the lights, two connectors for motors and one for the eye light.   Plus a power / control connector.
