@@ -122,8 +122,102 @@ The head rotation is the same as the eye stalk control - a L9110 motor controlle
 
 ### Eye light
 
-This is (I think) a non-standard synchronous waveform - not quite SPI, perhaps USART - but easy enough to replicated in Micropython.   
+This is (I think) a non-standard synchronous waveform - not quite SPI, perhaps USART - but easy enough to replicated in Micropython.     
+I used a basic oscilloscope (DSO 138) to ploy the waveform - see below.    
+   
 
 <p align="center">
-  <img src="trace.jpg" width="800" title="circuit diagram">
+  <img src="trace.jpg" width="500" title="circuit diagram">
 </p>
+
+There is a clock signal and data.    
+The clock and data go low for a period (around 6 cycles) and then there are 24 data bits.     
+At the end the clock and data signals go high again.   
+
+The baud rate is 600, so each cycle is 1.67ms. 
+
+The command sequence in the 24 bits is:
+```
+0x55  header
+0x??  command
+0x??  checksum
+```
+
+The checksum is ```0x55 + command```.
+
+Each command is one of the shapes the eye light can make.
+
+```
+0b0000_0000  off
+0b0000_0001  on full
+0b0000_0010  large shape
+0b0000_0011  smaller shape
+0b0000_0100  evern smaller shape
+0b0000_0101  smallest shape
+```
+
+
+```
+from machine import Pin
+from time import ticks_us, sleep_us, sleep_ms
+
+# Setup for receive
+pin_clk  = Pin(18, mode=Pin.IN)
+pin_data = Pin(16, mode=Pin.IN)
+
+# Setup for send
+pin_send_clk  = Pin(26, mode=Pin.OUT)
+pin_send_data = Pin(27, mode=Pin.OUT)
+
+# globals for send
+baud = 600
+cycle_dur = int(1_000_000 / baud) # length of a cycle in us
+half_cycle = int(cycle_dur / 2)
+front_porch = cycle_dur * 6
+
+print(f"Setup with baud {baud}, cycle duration {cycle_dur}, half cycle {half_cycle} front porch {front_porch}")
+
+def send_word(word):
+    global baud, cycle_dur, half_cycle, front_porch
+
+    pin_send_clk.value(0)
+    pin_send_data.value(0)
+    
+    sleep_us(front_porch)
+
+    for x in range(24):
+        pin_send_data.value(word[x])
+        sleep_us(100)
+        pin_send_clk.value(1)
+        sleep_us(half_cycle)
+        pin_send_clk.value(0)
+        sleep_us(100)
+        pin_send_data.value(0)
+        sleep_us(half_cycle)
+        print(word[x], end="")
+        
+    pin_send_clk.value(1)
+    pin_send_data.value(1)
+    print()
+
+def send():
+    cmd_off = [0,1,0,1,0,1,0,1,  0,0,0,0,0,0,0,0,  0,1,0,1,0,1,0,1]
+    cmd_on  = [0,1,0,1,0,1,0,1,  0,0,0,0,0,0,0,1,  0,1,0,1,0,1,1,0]
+    cmd_2   = [0,1,0,1,0,1,0,1,  0,0,0,0,0,0,1,0,  0,1,0,1,0,1,1,1]
+    cmd_3   = [0,1,0,1,0,1,0,1,  0,0,0,0,0,0,1,1,  0,1,0,1,1,0,0,0] 
+    cmd_4   = [0,1,0,1,0,1,0,1,  0,0,0,0,0,1,0,0,  0,1,0,1,1,0,0,1] 
+    cmd_5   = [0,1,0,1,0,1,0,1,  0,0,0,0,0,1,0,1,  0,1,0,1,1,0,1,0]
+    cmd_6   = [0,1,0,1,0,1,0,1,  0,0,0,0,0,1,1,0,  0,1,0,1,1,0,1,1]
+    
+    cmds = [cmd_off, cmd_on, cmd_2, cmd_3, cmd_4, cmd_5, cmd_6,
+            cmd_5, cmd_4, cmd_3, cmd_2, cmd_on, cmd_off]
+
+    for cmd in cmds:
+        send_word(cmd)
+        sleep_ms(1000)
+    
+def send_repeat():
+    while True:
+        send() 
+```
+
