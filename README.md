@@ -134,7 +134,7 @@ There is a clock signal and data.
 The clock and data go low for a period (around 6 cycles) and then there are 24 data bits.     
 At the end the clock and data signals go high again.   
 
-The baud rate is 600, so each cycle is 1.67ms. 
+The baud rate is 600, so each cycle is 1.67ms. [CHECK THIS]   
 
 The command sequence in the 24 bits is:
 ```
