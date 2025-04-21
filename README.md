@@ -157,6 +157,7 @@ Each command is one of the shapes the eye light can make.
 0b0000_0110  shape #5
 ```
 
+Waveform showing two commands and the clock.   Light blue peaks are there to show the placing, but are at logic zero.   
 
 <p align="center">
   <img src="waveform.jpg" width="800" title="waveform">
