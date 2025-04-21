@@ -150,10 +150,11 @@ Each command is one of the shapes the eye light can make.
 ```
 0b0000_0000  off
 0b0000_0001  on full
-0b0000_0010  large shape
-0b0000_0011  smaller shape
-0b0000_0100  evern smaller shape
-0b0000_0101  smallest shape
+0b0000_0010  shape #1
+0b0000_0011  shape #2
+0b0000_0100  shape #3
+0b0000_0101  shape #4
+0b0000_0110  shape #5
 ```
 
 
