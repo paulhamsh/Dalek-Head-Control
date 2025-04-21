@@ -125,5 +125,5 @@ The head rotation is the same as the eye stalk control - a L9110 motor controlle
 This is (I think) a non-standard synchronous waveform - not quite SPI, perhaps USART - but easy enough to replicated in Micropython.   
 
 <p align="center">
-  <img src="circuit.jpg" width="800" title="circuit diagram">
+  <img src="trace.jpg" width="800" title="circuit diagram">
 </p>
