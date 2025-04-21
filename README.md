@@ -158,6 +158,11 @@ Each command is one of the shapes the eye light can make.
 ```
 
 
+<p align="center">
+  <img src="waveform.jpg" width="800" title="waveform">
+</p>
+
+
 ```
 from machine import Pin
 from time import ticks_us, sleep_us, sleep_ms
