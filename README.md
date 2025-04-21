@@ -24,7 +24,7 @@ I think the IC is probably a PIC 12 of some variety.
 The circuit is as below.
 
 <p align="center">
-  <img src="circuit.jpg" width="350" title="circuit diagram">
+  <img src="circuit.jpg" width="800" title="circuit diagram">
 </p>
 
 ## Head circuit board
