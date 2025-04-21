@@ -123,7 +123,7 @@ The head rotation is the same as the eye stalk control - a L9110 motor controlle
 ### Eye light
 
 This is (I think) a non-standard synchronous waveform - not quite SPI, perhaps USART - but easy enough to replicated in Micropython.     
-I used a basic oscilloscope (DSO 138) to ploy the waveform - see below.    
+I used a basic oscilloscope (DSO 138) to explore the waveform - see below. This is showing the clock (lowest plot) and three different data waveforms.    
    
 
 <p align="center">
