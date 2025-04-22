@@ -15,6 +15,17 @@ If you build the head of the Hachette Partworks Dalek, and stop there, then you 
 - lamps
 - eye stalk light
 
+## Connectors in use
+
+| Item               | Connector     | Number of pins |
+| -------------------| --------------|----------------|
+| Board power        | JST XH 2.54mm |  2             |
+| Eye stalk motor    | JST PH 2.0mm  |  2             |
+| Head rotate motor  | JST PH 2.0mm  |  2             |
+| Lamps              | JST ZH 1.5mm  |  2             |
+| Eye stalk light    | JST SH 1.0mm  |  4             |
+
+
 ## Exploring the test control board
 
 The second issue comes with a test board which can be used with the dalek eye and the lights. This helps undestand how to control these aspects.
