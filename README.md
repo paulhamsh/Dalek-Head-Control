@@ -8,7 +8,7 @@ https://hachettepartworks.com/en-en/dalek/
 
 Datasheets:
 
-AMS LM1117  https://www.ti.com/lit/gpn/lm1117
+AMS LM1117  https://www.ti.com/lit/gpn/lm1117     
 L9110S      https://media.digikey.com/pdf/Data%20Sheets/UTD%20Semi%20PDFs/L9110S.pdf
 
 ## Background
