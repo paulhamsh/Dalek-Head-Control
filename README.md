@@ -193,6 +193,69 @@ Waveform showing two commands and the clock.   Light blue peaks are there to sho
   <img src="waveform.jpg" width="800" title="waveform">
 </p>
 
+This code will receive the incoming data and show the 24 bits   
+
+```
+from machine import Pin
+from time import ticks_us, sleep_us, sleep_ms
+
+# Setup for receive
+pin_clk  = Pin(18, mode=Pin.IN)
+pin_data = Pin(16, mode=Pin.IN)
+pin_led  = Pin(25, mode=Pin.OUT)
+
+# globals for receive
+led_toggle = False
+data = [0] * 25
+data_count = 0
+last_rising= ticks_us()
+
+def irq_handler_rising(pin):
+    global led_toggle
+    global data, data_count
+    global last_rising
+    
+    this_rising = ticks_us()
+    if this_rising - last_rising > 100_000:
+        data_count = 0
+       
+    last_rising = this_rising
+    
+    if data_count <= 25:
+        data[data_count] = pin_data.value()
+    data_count += 1
+    
+    if led_toggle:
+        led_toggle = False
+        pin_led.off()
+    else:
+        led_toggle = True
+        pin_led.on()
+
+def receive():
+    global data_count, data
+    pin_clk.irq(trigger = Pin.IRQ_RISING, handler = irq_handler_rising)
+    pin_led.on()
+
+    try:
+        while True:
+            if data_count >= 25:
+                for x in range(24):
+                    print(data[x], end="")
+                    if (x + 1) % 8 == 0:
+                        print(" ", end ="")
+                print()
+                data_count = 0
+        
+    except KeyboardInterrupt:
+        pin_led.off()
+    # remove IRQ driver
+    pin_clk.irq(None)
+
+receive()
+```
+
+Sample code to cycle through the light patterns.   
 
 ```
 from machine import Pin
