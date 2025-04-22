@@ -158,6 +158,10 @@ The waveform period is 2.1ms, so the effective baud rate is 476 baud.
 Standard baud rates are 300 and 600.   
 It works with rates between 460 and 850.   
 
+<p align="center">
+  <img src="timing.jpg" width="500" title="circuit diagram">
+</p>
+
 The command sequence in the 24 bits is:
 ```
 0x55  header
