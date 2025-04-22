@@ -258,3 +258,95 @@ def send_repeat():
         send() 
 ```
 
+Alternative version using timers    
+
+```
+from machine import Pin, Timer
+from time import sleep_ms
+
+# Setup for send
+pin_send_clk  = Pin(26, mode=Pin.OUT)
+pin_send_data = Pin(27, mode=Pin.OUT)
+
+baud = 600
+porch_half_cycles = 6 * 2 # 6 full cycles
+data_half_cycles = 24 * 2;  # 24 data bits
+total_half_cycles = porch_half_cycles + data_half_cycles
+
+print(f"Setup with baud {baud}, porch_half_cycles {porch_half_cycles} and total_half_cycles {total_half_cycles}")
+
+# globals for the callback
+data_value = 0
+state = 0
+count = 0
+running = False
+
+def timer_callback(timer):
+    global porch_half_cycles
+    global total_half_cycles
+    
+    global data_value
+    global state
+    global count
+    global running
+
+    if not running: # not primed to run yet
+        return
+ 
+    if state > total_half_cycles: # all done
+        pin_send_data.value(1)
+        pin_send_clk.value(1)
+        running = False
+        state = 0
+        count = 0
+        return
+    
+    if state == 0:
+        pin_send_data.value(0)
+        pin_send_clk.value(0)
+    elif state > porch_half_cycles:  # keep zero for porch
+        if state & 1 == 1:
+            pin_send_data.value(data_value[count])
+            pin_send_clk.value(1)   
+            count += 1
+        else:
+            pin_send_clk.value(0)
+            pin_send_data.value(0)
+            
+    state += 1
+
+
+tim = Timer(mode=Timer.PERIODIC, freq = baud * 2, callback = timer_callback)
+
+def send_with_timer(data):
+    global data_value
+    global state
+    global count
+    global running
+    
+    if not running:
+        data_value = data
+        running = True
+    else:
+        print("Called send_with_timer whilst data being sent")
+
+cmd_off = [0,1,0,1,0,1,0,1,  0,0,0,0,0,0,0,0,  0,1,0,1,0,1,0,1]
+cmd_on  = [0,1,0,1,0,1,0,1,  0,0,0,0,0,0,0,1,  0,1,0,1,0,1,1,0]
+cmd_2   = [0,1,0,1,0,1,0,1,  0,0,0,0,0,0,1,0,  0,1,0,1,0,1,1,1]
+cmd_3   = [0,1,0,1,0,1,0,1,  0,0,0,0,0,0,1,1,  0,1,0,1,1,0,0,0] 
+cmd_4   = [0,1,0,1,0,1,0,1,  0,0,0,0,0,1,0,0,  0,1,0,1,1,0,0,1] 
+cmd_5   = [0,1,0,1,0,1,0,1,  0,0,0,0,0,1,0,1,  0,1,0,1,1,0,1,0]
+cmd_6   = [0,1,0,1,0,1,0,1,  0,0,0,0,0,1,1,0,  0,1,0,1,1,0,1,1]
+
+cmds = [cmd_on, cmd_2, cmd_3, cmd_4, cmd_5, cmd_6,
+        cmd_5, cmd_4, cmd_3, cmd_2, cmd_on, cmd_off]
+
+try:
+    while True:
+        for c in cmds:
+            send_with_timer(c)
+            sleep_ms(500)
+        
+except KeyboardInterrupt:
+    tim.deinit()
+```
