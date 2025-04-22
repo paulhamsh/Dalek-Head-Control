@@ -148,7 +148,9 @@ There is a clock signal and data.
 The clock and data go low for a period (around 6 cycles) and then there are 24 data bits.     
 At the end the clock and data signals go high again.   
 
-The baud rate is 600, so each cycle is 1.67ms. [CHECK THIS]   
+The waveform period is 2.1ms, so the effective baud rate is 476 baud. 
+Standard baud rates are 300 and 600.   
+It works with rates between 460 and 850.   
 
 The command sequence in the 24 bits is:
 ```
