@@ -319,6 +319,10 @@ def send_repeat():
 
 Alternative version using timers    
 
+<p align="center">
+  <img src="timings.jpg" width="800" title="circuit diagram">
+</p>
+
 ```
 from machine import Pin, Timer
 from time import sleep_ms
