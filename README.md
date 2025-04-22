@@ -38,7 +38,7 @@ This is a useful reference site: https://www.mattmillman.com/info/crimpconnector
 
 The second issue comes with a test board which can be used with the dalek eye and the lights. This helps undestand how to control these aspects.
 It has an AMS1117 3v power regulator.   
-I think the IC is probably a PIC 12 of some variety.
+I think the IC is probably a PIC 12 of some variety. In the circuit diagram I have put PIC 12 pin numbers. It seems likely because the dalek eye light connections then are to RA1 and RA2, which can be USART output on that PIC (or SPI).   
 
 The circuit is as below.
 
@@ -52,6 +52,7 @@ The circuit board for controlling the whole head comes in issue 12.
 This has twp connectors for the lights, two connectors for motors and one for the eye light.   
 Plus a power / control connector.   
 It has two ICs (U3 and U3) which are L9110S motor controllers.   
+Another IC (unmarked) which is probably a larger, 16 pin PIC chip.   
 
 ## How to control the features
 
