@@ -6,6 +6,11 @@ The Hachette website is here:
 
 https://hachettepartworks.com/en-en/dalek/
 
+Datasheets:
+
+AMS LM1117  https://www.ti.com/lit/gpn/lm1117
+L9110S      https://media.digikey.com/pdf/Data%20Sheets/UTD%20Semi%20PDFs/L9110S.pdf
+
 ## Background
 
 If you build the head of the Hachette Partworks Dalek, and stop there, then you will need to devise a way to control the features:
