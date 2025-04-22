@@ -17,6 +17,9 @@ If you build the head of the Hachette Partworks Dalek, and stop there, then you 
 
 ## Connectors in use
 
+This is a useful reference site: https://www.mattmillman.com/info/crimpconnectors/common-jst-connector-types    
+
+
 | Item               | Connector     | Number of pins |
 | -------------------| --------------|----------------|
 | Board power        | JST XH 2.54mm |  2             |
