@@ -8,8 +8,11 @@ https://hachettepartworks.com/en-en/dalek/
 
 Datasheets:
 
-AMS LM1117  https://www.ti.com/lit/gpn/lm1117     
-L9110S      https://media.digikey.com/pdf/Data%20Sheets/UTD%20Semi%20PDFs/L9110S.pdf
+| Item               | URL                                                                       |
+| -------------------| --------------------------------------------------------------------------|
+| AMS LM1117         | https://www.ti.com/lit/gpn/lm1117                                         |
+| L9110S             | https://media.digikey.com/pdf/Data%20Sheets/UTD%20Semi%20PDFs/L9110S.pdf  |
+| PIC12(L)F1571      | https://ww1.microchip.com/downloads/en/devicedoc/40001723d.pdf            |
 
 ## Background
 
@@ -38,7 +41,7 @@ This is a useful reference site: https://www.mattmillman.com/info/crimpconnector
 
 The second issue comes with a test board which can be used with the dalek eye and the lights. This helps undestand how to control these aspects.
 It has an AMS1117 3v power regulator.   
-I think the IC is probably a PIC 12 of some variety. In the circuit diagram I have put PIC 12 pin numbers. It seems likely because the dalek eye light connections then are to RA1 and RA2, which can be USART output on that PIC (or SPI).   
+I think the IC is probably a PIC 12 of some variety. In the circuit diagram I have put PIC 12 pin numbers. It seems likely because the dalek eye light connections then are to RA0 and RA1, which can be USART output on that PIC (or SPI).   
 
 The circuit is as below.
 
