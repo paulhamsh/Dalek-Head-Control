@@ -261,10 +261,6 @@ Sample code to cycle through the light patterns.
 from machine import Pin
 from time import ticks_us, sleep_us, sleep_ms
 
-# Setup for receive
-pin_clk  = Pin(18, mode=Pin.IN)
-pin_data = Pin(16, mode=Pin.IN)
-
 # Setup for send
 pin_send_clk  = Pin(26, mode=Pin.OUT)
 pin_send_data = Pin(27, mode=Pin.OUT)
