@@ -64,7 +64,7 @@ Another IC (unmarked) which is probably a larger, 16 pin PIC chip.
 From inspecting the waveforms, the lamps are controlled with simple PWM and have a 430ohm resistor to limit curent.
 This is basic Micropython to control one of the lamps on GPIO 0.
 
-The JST socket cable ((mine, perhaps not all ones) matches the red socket to the black pin on the Dalek head, so the polarity needs to be swapped.   
+The JST socket cable (mine, perhaps not all ones) matches the red socket to the black pin on the Dalek head, so the polarity needs to be swapped.   
 This means that the red JST socket cable needs to be connected to the ground, and black to the +3v.  
 
 <p align="center">
