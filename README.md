@@ -193,8 +193,8 @@ Waveform showing two commands and the clock.   Light blue peaks are there to sho
   <img src="waveform.jpg" width="800" title="waveform">
 </p>
 
-The JST socket cable in use matches the red socket to the black pin on the Dalek head, so the polarity needs to be swapped.   
-This means that the red JST cable needs to be connected to the ground, and black to the +3v.  
+The JST socket cable ((mine, perhaps not all ones) matches the red socket to the black pin on the Dalek head, so the polarity needs to be swapped.   
+This means that the red JST socket cable needs to be connected to the ground, and black to the +3v.  
 
 <p align="center">
   <img src="light-wiring.jpg" width="500" title="circuit">
