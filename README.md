@@ -193,6 +193,12 @@ Waveform showing two commands and the clock.   Light blue peaks are there to sho
   <img src="waveform.jpg" width="800" title="waveform">
 </p>
 
+
+
+<p align="center">
+  <img src="light-wiring.jpg" width="500" title="circuit">
+</p>
+
 This code will receive the incoming data and show the 24 bits   
 
 ```
