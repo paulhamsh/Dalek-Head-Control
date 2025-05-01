@@ -426,3 +426,6 @@ except KeyboardInterrupt:
 
 https://kitronik.co.uk/products/5331-kitronik-compact-motor-driver-board-for-raspberry-pi-pico
 
+<p align="center">
+  <img src="Kitronik.jpg" width="500" title="Kitronik">
+</p>
