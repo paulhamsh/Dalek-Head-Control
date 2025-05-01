@@ -421,3 +421,8 @@ try:
 except KeyboardInterrupt:
     tim.deinit()
 ```
+
+## Using the Kitronik Pico Pi Motor Driver Board
+
+https://kitronik.co.uk/products/5331-kitronik-compact-motor-driver-board-for-raspberry-pi-pico
+
