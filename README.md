@@ -429,3 +429,412 @@ https://kitronik.co.uk/products/5331-kitronik-compact-motor-driver-board-for-ras
 <p align="center">
   <img src="Kitronik.jpg" width="500" title="Kitronik">
 </p>
+
+This code uses the Kitronik Pico Pi motor driver board and Bluetooth Midi (it was easiest and I had the code to hand) for Dalek head control.   
+
+
+```
+from machine import Pin, PWM
+from time import ticks_us, sleep_us, sleep_ms, sleep 
+
+#
+# Dalek eye light
+#
+
+pin_send_clk  = Pin(0, mode=Pin.OUT)
+pin_send_data = Pin(1, mode=Pin.OUT)
+
+# globals for receive
+led_toggle = False
+data = [0] * 25
+data_count = 0
+last_rising= ticks_us()
+
+# globals for send
+baud = 600
+cycle_dur = int(1_000_000 / baud) # length of a cycle in us
+half_cycle = int(cycle_dur / 2)
+front_porch = cycle_dur * 6
+
+
+def send_word(word):
+    global baud, cycle_dur, half_cycle, front_porch
+
+    pin_send_clk.value(0)
+    pin_send_data.value(0)
+    sleep_us(front_porch)
+    for x in range(24):
+        pin_send_data.value(word[x])
+        sleep_us(100)
+        pin_send_clk.value(1)
+        sleep_us(half_cycle)
+        pin_send_clk.value(0)
+        sleep_us(100)
+        pin_send_data.value(0)
+        sleep_us(half_cycle)
+        
+    pin_send_clk.value(1)
+    pin_send_data.value(1)
+
+cmd_off = [0,1,0,1,0,1,0,1,  0,0,0,0,0,0,0,0,  0,1,0,1,0,1,0,1]
+cmd_on  = [0,1,0,1,0,1,0,1,  0,0,0,0,0,0,0,1,  0,1,0,1,0,1,1,0]
+cmd_1   = [0,1,0,1,0,1,0,1,  0,0,0,0,0,0,1,0,  0,1,0,1,0,1,1,1]
+cmd_2   = [0,1,0,1,0,1,0,1,  0,0,0,0,0,0,1,1,  0,1,0,1,1,0,0,0] 
+cmd_3   = [0,1,0,1,0,1,0,1,  0,0,0,0,0,1,0,0,  0,1,0,1,1,0,0,1] 
+cmd_4   = [0,1,0,1,0,1,0,1,  0,0,0,0,0,1,0,1,  0,1,0,1,1,0,1,0]
+cmd_5   = [0,1,0,1,0,1,0,1,  0,0,0,0,0,1,1,0,  0,1,0,1,1,0,1,1]
+    
+eye_light_cmds = [cmd_off, cmd_on, cmd_1, cmd_2, cmd_3, cmd_4, cmd_5]
+eye_light_widen = [cmd_5, cmd_4, cmd_3, cmd_2, cmd_1, cmd_on]
+eye_light_narrow = [cmd_on, cmd_1, cmd_2, cmd_3, cmd_4, cmd_5]
+    
+def dalek_eye_light(num):
+    send_word(eye_light_cmds[num])
+    
+def dalek_eye_light_cmd(cmd):
+    send_word(cmd)
+
+#
+# Dalek lamps
+#
+
+led1 = machine.Pin(26, Pin.OUT)
+led2 = machine.Pin(27, Pin.OUT)
+
+led1_pwm = PWM(led1)
+led2_pwm = PWM(led2)
+
+frequency = 5000
+led1_pwm.freq(frequency)
+led2_pwm.freq(frequency)
+light_max = 65535
+
+def dalek_lamp1_brightness(duty_cycle):
+    led1_pwm.duty_u16(duty_cycle)
+    
+def dalek_lamp2_brightness(duty_cycle):
+    led2_pwm.duty_u16(duty_cycle)
+    
+def dalek_lamp1_off():
+    led1_pwm.duty_u16(0)
+    led1_pwm.deinit()
+    led1.off()
+
+def dalek_lamp2_off():
+    led2_pwm.duty_u16(0)
+    led2_pwm.deinit()
+    led2.off()
+   
+#
+# Dalek eye stalk motor
+#
+
+PWMFreq = 10000
+
+motor1Forward=machine.PWM(machine.Pin(3))
+motor1Reverse=machine.PWM(machine.Pin(2))
+motor2Forward=machine.PWM(machine.Pin(6))
+motor2Reverse=machine.PWM(machine.Pin(7))
+motor1Forward.freq(PWMFreq)
+motor1Reverse.freq(PWMFreq)
+motor2Forward.freq(PWMFreq)
+motor2Reverse.freq(PWMFreq)
+
+def motorOn(motor, direction, speed):
+    PWM = speed
+    if motor == 1:
+        if direction == "f":
+            motor1Forward.duty_u16(PWM)
+            motor1Reverse.duty_u16(0)
+        elif direction == "r":
+            motor1Forward.duty_u16(0)
+            motor1Reverse.duty_u16(PWM)
+    elif motor == 2:
+        if direction == "f":
+            motor2Forward.duty_u16(PWM)
+            motor2Reverse.duty_u16(0)
+        elif direction == "r":
+            motor2Forward.duty_u16(0)
+            motor2Reverse.duty_u16(PWM)
+
+def motorOff(motor):
+    motorOn(motor, "f", 0)
+
+def dalek_eye_stalk_motor_on(direction, speed):
+    speed = 65535 # max speed
+    motorOn(1, direction, speed)
+    
+def dalek_eye_stalk_motor_off():
+    motorOff(1)
+   
+   
+##############################   
+           
+def test():
+    try:
+        while True:
+            # test eye light
+            print("Test eye light")
+            for n in range(0, len(eye_light_cmds)):
+                dalek_eye_light(n)
+                sleep_ms(400)
+            
+            # test lamps
+            print("Test lamps")
+            step = 500
+            for n in range(0, light_max, step):
+                dalek_lamp1_brightness(n);
+                dalek_lamp2_brightness(n);
+                sleep_ms(10)
+            for n in range(light_max, 0, -step):
+                dalek_lamp1_brightness(n);
+                dalek_lamp2_brightness(n);
+                sleep_ms(10)
+                
+            dalek_lamp1_off()
+            dalek_lamp2_off()
+            
+            print("Test eye stalk motor")
+            # test eye stalk motor
+            max_speed = 65535
+            dalek_eye_stalk_motor_on("f", max_speed)
+            sleep_ms(1000)
+            dalek_eye_stalk_motor_on("r", max_speed)
+            sleep_ms(1000)
+            dalek_eye_stalk_motor_off()
+            
+    except KeyboardInterrupt:
+        print("Keyboard interrupt")
+        dalek_eye_stalk_motor_off()
+        dalek_lamp1_off()
+        dalek_lamp2_off()
+        dalek_eye_light(0)
+ 
+ 
+ 
+###########################
+# Bluetooth section
+###########################
+
+from micropython import const
+import struct
+import bluetooth
+
+_ADV_TYPE_FLAGS = const(0x01)
+_ADV_TYPE_NAME = const(0x09)
+_ADV_TYPE_UUID16_COMPLETE = const(0x3)
+_ADV_TYPE_UUID32_COMPLETE = const(0x5)
+_ADV_TYPE_UUID128_COMPLETE = const(0x7)
+_ADV_TYPE_UUID16_MORE = const(0x2)
+_ADV_TYPE_UUID32_MORE = const(0x4)
+_ADV_TYPE_UUID128_MORE = const(0x6)
+_ADV_TYPE_APPEARANCE = const(0x19)
+
+#_ADV_TYPE_MANUFACTURER = const(0xff)
+
+def advertising_payload(limited_disc=False, br_edr=False, name=None, services=None, appearance=0):
+    payload = bytearray()
+
+    def _append(adv_type, value):
+        nonlocal payload
+        payload += struct.pack("BB", len(value) + 1, adv_type) + value
+
+    _append(
+        _ADV_TYPE_FLAGS,
+        struct.pack("B", (0x01 if limited_disc else 0x02) + (0x18 if br_edr else 0x04)),
+    )
+
+    if name:
+        _append(_ADV_TYPE_NAME, name)
+
+    if services:
+        for uuid in services:
+            b = bytes(uuid)
+            if len(b) == 2:
+                _append(_ADV_TYPE_UUID16_COMPLETE, b)
+            elif len(b) == 4:
+                _append(_ADV_TYPE_UUID32_COMPLETE, b)
+            elif len(b) == 16:
+                _append(_ADV_TYPE_UUID128_COMPLETE, b)
+
+    # See org.bluetooth.characteristic.gap.appearance.xml
+    if appearance:
+        _append(_ADV_TYPE_APPEARANCE, struct.pack("<h", appearance))
+
+    return payload
+
+
+_IRQ_CENTRAL_CONNECT = const(1)
+_IRQ_CENTRAL_DISCONNECT = const(2)
+_IRQ_GATTS_WRITE = const(3)
+
+_FLAG_READ = const(0x0002)
+_FLAG_WRITE_NO_RESPONSE = const(0x0004)
+_FLAG_WRITE = const(0x0008)
+_FLAG_NOTIFY = const(0x0010)
+
+"""
+BLE_UUID = bluetooth.UUID("00000001-0000-1000-8000-010203040506")
+BLE_TX = (
+    bluetooth.UUID("00000001-0000-1000-8000-01020304050a"),
+    _FLAG_READ | _FLAG_NOTIFY,
+)
+BLE_RX = (
+    bluetooth.UUID("00000001-0000-1000-8000-01020304050b"),
+    _FLAG_WRITE | _FLAG_WRITE_NO_RESPONSE,
+)
+
+BLE_SERVICE = (
+    BLE_UUID,
+    (BLE_TX, BLE_RX),
+)
+"""
+
+_MIDI_IO = (
+    bluetooth.UUID("7772E5DB-3868-4112-A1A9-F2669D106BF3"),
+    bluetooth.FLAG_READ | bluetooth.FLAG_NOTIFY | bluetooth.FLAG_WRITE | bluetooth.FLAG_WRITE_NO_RESPONSE,
+)
+
+_MIDI_UUID = bluetooth.UUID("03B80E5A-EDE8-4B33-A751-6CE34EC4C700")
+_MIDI_SERVICE = (
+    _MIDI_UUID,
+    (_MIDI_IO,),
+)
+
+
+class BLESimplePeripheral:
+    def __init__(self, ble, name="dalek-head"):
+        self._ble = ble
+        self._ble.active(True)
+        self._ble.irq(self._irq)
+        ((self._handle_io,),) = self._ble.gatts_register_services((_MIDI_SERVICE,))
+        self._ble.gatts_set_buffer(self._handle_io, 32, True)
+        print("Handle ", self._handle_io)
+        self._connections = set()
+        self._write_callback = None
+        self._payload = advertising_payload(name=name, services=[_MIDI_UUID])
+        self._advertise()
+
+
+    def _irq(self, event, data):
+        # Track connections so we can send notifications.
+        if event == _IRQ_CENTRAL_CONNECT:
+            conn_handle, _, _ = data
+            print("New connection", conn_handle)
+            self._connections.add(conn_handle)
+        elif event == _IRQ_CENTRAL_DISCONNECT:
+            conn_handle, _, _ = data
+            print("Disconnected", conn_handle)
+            self._connections.remove(conn_handle)
+            # Start advertising again to allow a new connection.
+            self._advertise()
+        elif event == _IRQ_GATTS_WRITE:
+            conn_handle, value_handle = data
+            value = self._ble.gatts_read(value_handle)
+            if value_handle == self._handle_io and self._write_callback:
+                self._write_callback(value)
+
+    def send(self, data):
+        for conn_handle in self._connections:
+            self._ble.gatts_notify(conn_handle, self._handle_io, data)
+
+    def is_connected(self):
+        return len(self._connections) > 0
+
+    def _advertise(self, interval_us=500000):
+        print("Starting advertising")
+        self._ble.gap_advertise(interval_us, adv_data=self._payload)
+
+    def on_write(self, callback):
+        self._write_callback = callback
+        
+
+def ble_dalek_control():
+    ble = bluetooth.BLE()
+    per = BLESimplePeripheral(ble)
+    buf = []
+    
+    def on_rx(v):
+        print("Received", ''.join('{:02x}'.format(x) for x in v))
+        buf.append(v)
+
+    per.on_write(on_rx)
+
+    max_speed = 65535
+
+    while True:
+        if buf:
+            #rx_cmd = int(buf[0][0]) # get first byte of command
+            rx_cmd = int(buf[0][-1]) # get last byte of the command
+            print(rx_cmd)
+            buf = []
+            
+            if rx_cmd == 10:
+                print("Eye light on")
+                dalek_eye_light_cmd(cmd_on)
+            elif rx_cmd == 9:
+                print("Eye light off")
+                dalek_eye_light_cmd(cmd_off)
+            elif rx_cmd == 12:
+                print("Eye light widen")
+                for c in eye_light_widen:
+                    dalek_eye_light_cmd(c)
+                    sleep_ms(300)
+            elif rx_cmd == 11:
+                print("Eye light narrow")
+                for c in eye_light_narrow:
+                    dalek_eye_light_cmd(c)
+                    sleep_ms(300)
+            elif rx_cmd == 7:
+                print("Light flash slow")
+                step = 500
+                for n in range(0, light_max, step):
+                    dalek_lamp1_brightness(n);
+                    dalek_lamp2_brightness(n);
+                    sleep_ms(5)
+                for n in range(light_max, 0, -step):
+                    dalek_lamp1_brightness(n);
+                    dalek_lamp2_brightness(n);
+                    sleep_ms(5)
+                dalek_lamp1_off()
+                dalek_lamp2_off()
+            elif rx_cmd == 8:
+                print("Light flash fast")
+                step = 1000
+                for n in range(0, light_max, step):
+                    dalek_lamp1_brightness(n);
+                    dalek_lamp2_brightness(n);
+                    sleep_ms(5)
+                for n in range(light_max, 0, -step):
+                    dalek_lamp1_brightness(n);
+                    dalek_lamp2_brightness(n);
+                    sleep_ms(5)
+                dalek_lamp1_off()
+                dalek_lamp2_off()                
+            elif rx_cmd == 4:
+                print("Eye stalk up")
+                dalek_eye_stalk_motor_on("r", max_speed)
+                sleep_ms(1000)
+                dalek_eye_stalk_motor_off()
+            elif rx_cmd == 5:
+                print("Eye stalk down")
+                dalek_eye_stalk_motor_on("f", max_speed)
+                sleep_ms(1000)
+                dalek_eye_stalk_motor_off()
+            elif rx_cmd == 6:
+                print("Eye stalk stop")
+                dalek_eye_stalk_motor_off()
+            elif rx_cmd == 1:
+                print("Head left")
+            elif rx_cmd == 2:
+                print("Head right")
+            elif rx_cmd == 3:
+                print("Head stop")
+            else:
+                print("Invalid request")
+
+# Choose normal test or bluetooth control
+
+#test()
+ble_dalek_control()
+```
