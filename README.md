@@ -430,6 +430,12 @@ https://kitronik.co.uk/products/5331-kitronik-compact-motor-driver-board-for-ras
   <img src="Kitronik.jpg" width="500" title="Kitronik">
 </p>
 
+
+
+<p align="center">
+  <img src="Kitronik Circuit.jpg" width="800" title="circuit diagram">
+</p>
+
 This code uses the Kitronik Pico Pi motor driver board and Bluetooth Midi (it was easiest and I had the code to hand) for Dalek head control.   
 
 
