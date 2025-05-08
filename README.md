@@ -2,9 +2,10 @@
 
 Controlling the head of the Hachette Partworks Dalek with a Pico Pi
 
-The Hachette website is here:
+Youtube video here: https://www.youtube.com/watch?v=uzwmANiXHF8    
+On channel: https://www.youtube.com/@paulhamshere2652    
 
-https://hachettepartworks.com/en-en/dalek/
+The Hachette website is here: https://hachettepartworks.com/en-en/dalek/    
 
 **Datasheets**    
 
@@ -573,6 +574,12 @@ def dalek_eye_stalk_motor_on(direction, speed):
 def dalek_eye_stalk_motor_off():
     motorOff(1)
    
+
+def dalek_head_motor_on(direction, speed):
+    motorOn(2, direction, speed)
+    
+def dalek_head_motor_off():
+    motorOff(2)
    
 ##############################   
            
@@ -767,6 +774,7 @@ def ble_dalek_control():
     per.on_write(on_rx)
 
     max_speed = 65535
+    fast_speed = 50000
 
     while True:
         if buf:
@@ -832,10 +840,13 @@ def ble_dalek_control():
                 dalek_eye_stalk_motor_off()
             elif rx_cmd == 1:
                 print("Head left")
+		dalek_head_motor_on("f", fast_speed)
             elif rx_cmd == 2:
                 print("Head right")
+		dalek_head_motor_on("4", fast_speed)
             elif rx_cmd == 3:
                 print("Head stop")
+		dalek_head_motor_off()
             else:
                 print("Invalid request")
 
